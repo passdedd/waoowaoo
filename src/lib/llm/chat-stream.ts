@@ -95,6 +95,54 @@ export async function chatCompletionStream(
   })
 
   try {
+    if (providerKey === 'claude-cli') {
+      const { executeClaudeCliStream } = await import('./providers/claude-cli')
+      emitStreamStage(callbacks, streamStep, 'streaming', 'claude-cli')
+
+      let seq = 1
+      const cliResult = await executeClaudeCliStream(resolvedModelId, messages, {
+        onTextDelta: (delta: string) => {
+          emitStreamChunk(callbacks, streamStep, {
+            kind: 'text',
+            delta,
+            seq,
+            lane: 'main',
+          })
+          seq += 1
+        },
+        onReasoningDelta: (delta: string) => {
+          emitStreamChunk(callbacks, streamStep, {
+            kind: 'reasoning',
+            delta,
+            seq,
+            lane: 'reasoning',
+          })
+          seq += 1
+        },
+      })
+
+      const completion = buildOpenAIChatCompletion(
+        resolvedModelId,
+        buildReasoningAwareContent(cliResult.text, cliResult.reasoning),
+      )
+      logLlmRawOutput({
+        userId,
+        projectId,
+        provider: 'claude-cli',
+        modelId: resolvedModelId,
+        modelKey: selection.modelKey,
+        stream: true,
+        action: options.action,
+        text: cliResult.text,
+        reasoning: cliResult.reasoning,
+        usage: null,
+      })
+      recordCompletionUsage(resolvedModelId, completion)
+      emitStreamStage(callbacks, streamStep, 'completed', 'claude-cli')
+      callbacks?.onComplete?.(cliResult.text, streamStep)
+      return completion
+    }
+
     if (providerKey === 'google' || providerKey === 'gemini-compatible') {
       const config = await getProviderConfig(userId, provider)
       // gemini-compatible 可能有自定义 baseUrl（指向第三方兼容服务）

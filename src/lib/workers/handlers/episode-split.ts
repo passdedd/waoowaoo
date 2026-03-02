@@ -8,6 +8,7 @@ import { assertTaskActive } from '@/lib/workers/utils'
 import { getUserModelConfig } from '@/lib/config-service'
 import { createTextMarkerMatcher } from '@/lib/novel-promotion/story-to-script/clip-matching'
 import { createWorkerLLMStreamCallbacks, createWorkerLLMStreamContext } from './llm-stream'
+import { stripMarkdownCodeFence, repairAndParseJson } from './screenplay-convert-helpers'
 import type { TaskJobData } from '@/lib/task/types'
 import { buildPrompt, PROMPT_IDS } from '@/lib/prompt-i18n'
 
@@ -33,23 +34,17 @@ const EPISODE_SPLIT_BOUNDARY_SUFFIX = `
 2. Markers must be locatable in the original text; allow punctuation/whitespace differences only.
 3. If boundaries cannot be located reliably, return an empty episodes array.`
 
-function cleanJsonStringForParse(input: string): string {
-  return input.replace(/"([^"\\]|\\.)*"/g, (match) => {
-    return match
-      .replace(/(?<!\\)\n/g, '\\n')
-      .replace(/(?<!\\)\r/g, '\\r')
-      .replace(/(?<!\\)\t/g, '\\t')
-  })
-}
-
 function parseSplitResponse(aiResponse: string): SplitResponse {
-  const jsonMatch = aiResponse.match(/```json\s*([\s\S]*?)\s*```/) || aiResponse.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) {
+  const cleaned = stripMarkdownCodeFence(aiResponse.trim())
+  const firstBrace = cleaned.indexOf('{')
+  const lastBrace = cleaned.lastIndexOf('}')
+  if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
     throw new Error('Failed to parse AI response: missing JSON payload')
   }
 
-  const jsonText = cleanJsonStringForParse(jsonMatch[1] || jsonMatch[0])
-  const parsed = JSON.parse(jsonText) as SplitResponse
+  const jsonText = cleaned.substring(firstBrace, lastBrace + 1)
+  const parsed = repairAndParseJson(jsonText) as SplitResponse
+
   if (!parsed || !Array.isArray(parsed.episodes) || parsed.episodes.length === 0) {
     throw new Error('Failed to parse AI response: invalid episodes payload')
   }

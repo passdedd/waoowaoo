@@ -91,6 +91,10 @@ export const PRESET_MODELS: PresetModel[] = [
     { modelId: 'doubao-seed-2-0-mini-260215', name: 'Doubao Seed 2.0 Mini', type: 'llm', provider: 'ark' },
     { modelId: 'doubao-seed-1-6-251015', name: 'Doubao Seed 1.6', type: 'llm', provider: 'ark' },
     { modelId: 'doubao-seed-1-6-lite-251015', name: 'Doubao Seed 1.6 Lite', type: 'llm', provider: 'ark' },
+    // Claude CLI（本地命令行，无需 API Key）
+    { modelId: 'sonnet', name: 'Claude Sonnet (CLI)', type: 'llm', provider: 'claude-cli' },
+    { modelId: 'opus', name: 'Claude Opus (CLI)', type: 'llm', provider: 'claude-cli' },
+    { modelId: 'haiku', name: 'Claude Haiku (CLI)', type: 'llm', provider: 'claude-cli' },
 
     // 图像模型
     { modelId: 'banana', name: 'Banana Pro', type: 'image', provider: 'fal' },
@@ -167,12 +171,14 @@ export const PRESET_PROVIDERS: Omit<Provider, 'apiKey' | 'hasApiKey'>[] = [
     { id: 'vidu', name: 'Vidu' },
     { id: 'fal', name: 'FAL' },
     { id: 'qwen', name: 'Qwen' },
+    { id: 'claude-cli', name: 'Claude CLI' },
 ]
 
 const ZH_PROVIDER_NAME_MAP: Record<string, string> = {
     ark: '火山引擎 Ark',
     minimax: '海螺 MiniMax',
     vidu: '生数科技 Vidu',
+    'claude-cli': 'Claude 命令行',
 }
 
 function isZhLocale(locale?: string): boolean {
@@ -338,6 +344,15 @@ export const PROVIDER_TUTORIALS: ProviderTutorial[] = [
             {
                 text: 'qwen_step1',
                 url: 'https://bailian.console.aliyun.com/cn-beijing/?tab=model#/api-key'
+            }
+        ]
+    },
+    {
+        providerId: 'claude-cli',
+        steps: [
+            {
+                text: 'claude_cli_step1',
+                url: 'https://docs.anthropic.com/en/docs/claude-code/overview'
             }
         ]
     }

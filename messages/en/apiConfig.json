@@ -106,7 +106,8 @@
       "vidu_step1": "Go to the Vidu platform and click 'Create API Key'",
       "openai_compatible_step1": "Enter any OpenAI-compatible service Base URL and API key",
       "gemini_compatible_step1": "Enter any Gemini-compatible service Base URL and API key",
-      "qwen_step1": "Go to Alibaba Cloud Bailian platform and get an API Key"
+      "qwen_step1": "Go to Alibaba Cloud Bailian platform and get an API Key",
+      "claude_cli_step1": "Install Claude Code CLI and sign in (no API key needed, uses local CLI auth)"
     }
   }
 }

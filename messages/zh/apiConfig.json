@@ -106,7 +106,8 @@
       "vidu_step1": "进入生数科技 Vidu 平台，点击「新建 API Key」",
       "openai_compatible_step1": "填写任意 OpenAI 协议兼容服务的 Base URL 与 API Key",
       "gemini_compatible_step1": "填写任意 Gemini 协议兼容服务的 Base URL 与 API Key",
-      "qwen_step1": "进入阿里云百炼平台，获取 API Key"
+      "qwen_step1": "进入阿里云百炼平台，获取 API Key",
+      "claude_cli_step1": "安装 Claude Code CLI 并登录（无需 API Key，使用本地 CLI 认证）"
     }
   }
 }

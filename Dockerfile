@@ -21,7 +21,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-RUN apk add --no-cache tini
+RUN apk add --no-cache tini \
+    && npm install -g @anthropic-ai/claude-code
 
 # node_modules（含 devDeps，因为 npm run start 需要 concurrently + tsx）
 COPY --from=builder /app/node_modules ./node_modules

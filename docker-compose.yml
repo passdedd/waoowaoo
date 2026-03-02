@@ -93,6 +93,7 @@ services:
     volumes:
       - ./data:/app/data
       - ./docker-logs:/app/logs
+      - ~/.claude:/root/.claude:ro
     depends_on:
       mysql:
         condition: service_healthy

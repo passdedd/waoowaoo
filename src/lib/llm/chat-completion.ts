@@ -102,6 +102,41 @@ export async function chatCompletion(
   for (let attempt = 1; attempt <= maxRetries + 1; attempt++) {
     const attemptStartedAt = Date.now()
     try {
+      if (providerKey === 'claude-cli') {
+        const { executeClaudeCliCompletion } = await import('./providers/claude-cli')
+        const cliResult = await executeClaudeCliCompletion(resolvedModelId, messages)
+        const completion = buildOpenAIChatCompletion(
+          resolvedModelId,
+          buildReasoningAwareContent(cliResult.text, cliResult.reasoning),
+        )
+        logLlmRawOutput({
+          userId,
+          projectId,
+          provider: 'claude-cli',
+          modelId: resolvedModelId,
+          modelKey: selection.modelKey,
+          stream: false,
+          action: options.action,
+          text: cliResult.text,
+          reasoning: cliResult.reasoning,
+          usage: null,
+        })
+        recordCompletionUsage(resolvedModelId, completion)
+        llmLogger.info({
+          action: 'llm.call.success',
+          message: 'llm call succeeded',
+          provider: 'claude-cli',
+          durationMs: cliResult.durationMs,
+          details: {
+            model: resolvedModelId,
+            attempt,
+            maxRetries,
+            costUsd: cliResult.costUsd,
+          },
+        })
+        return completion
+      }
+
       if (providerKey === 'google' || providerKey === 'gemini-compatible') {
         const config = await getProviderConfig(userId, provider)
         // gemini-compatible 可能有自定义 baseUrl（指向第三方兼容服务）
